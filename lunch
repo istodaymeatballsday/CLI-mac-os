@@ -3,39 +3,61 @@ import json
 import urllib2
 import time
 import sys
-import datetime
+import re
+from datetime import datetime
+from datetime import timedelta
 
 restaurants = {
 	"Linsen": "b672efaf-032a-4bb8-d2a5-08d558129279", 
     "Express": "3d519481-1667-4cad-d2a3-08d558129279"
 }
 
-def get_days_ago(days_ago):
-    date = datetime.datetime.now() - datetime.timedelta(days=days_ago)
+food = {
+    "Date": [{"Resturang", "Kött", "Veg"}]    
+}
+
+[1,2,3,4,5,6,7]
+
+
+def get_days_ahead(days_ahead):
+    date = datetime.now() + timedelta(days=days_ahead)
     return date.strftime('%Y-%m-%d'), date.strftime('%A')
 
+def parse_date(date_string):
+    date_string = "4/15/2019 12:00:00 AM"
+    spliced = re.compile("/| ").split(date_string)
+    return datetime(int(spliced[2]), int(spliced[0]), int(spliced[1]))
+    
 
-def getFood(start_date, end_date=""):
+def get_food(start_date, end_date=""):
     res = json.loads(urllib2.urlopen(
         'http://carbonateapiprod.azurewebsites.net/api/v1/mealprovidingunits/3d519481-1667-4cad-d2a3-08d558129279/dishoccurrences?startDate='
         + start_date
         + '&endDate='
         + end_date
     ).read())
+    parsed_res = map(lambda day: {'date': day['startDate'], 'food': day['displayNames'][0]['dishDisplayName']}, res)
     meat = res[0]['displayNames'][0]['dishDisplayName']
     vegan = res[1]['displayNames'][0]['dishDisplayName']
     return meat, vegan
 
+{date, food, veg?}
+
+{date, meat, veg}
 
 def get_today():
-    return get_days_ago(0)
+    return get_days_ahead(0)
 
 try:
-    days_ago = int(sys.argv[1] if len(sys.argv) > 1 else 0)
-    date, day = get_days_ago(days_ago)
-    meat, vegan = getFood(date)
+    # days_ago = int(sys.argv[1] if len(sys.argv) > 1 else 0)
+    # date, day = get_days_ahead(days_ago)
+    # today, _ = get_today()
+    # meat, vegan = get_food(today, date)
+    # print meat
+    parse_date('hej')
 
 except ValueError:
     print 'invalid number of days'
-except Exception:
+except Exception as e:
+    print e
     print 'shit fucked up'
