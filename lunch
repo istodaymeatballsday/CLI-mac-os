@@ -5,30 +5,37 @@ import time
 import sys
 import datetime
 
-def get_days_ago(days_ago):
-	date = datetime.datetime.now() - datetime.timedelta(days=days_ago)
-	return date.strftime('%Y-%m-%d'), date.strftime('%A')
+restaurants = {
+	"Linsen": "b672efaf-032a-4bb8-d2a5-08d558129279", 
+    "Express": "3d519481-1667-4cad-d2a3-08d558129279"
+}
 
-def getFood(start_date, end_date = start_date):
-	res = json.loads(urllib2.urlopen(
-		'http://carbonateapiprod.azurewebsites.net/api/v1/mealprovidingunits/3d519481-1667-4cad-d2a3-08d558129279/dishoccurrences?startDate='
-		+ start_date
-		+ '&endDate='
-		+ end_date
-	).read())
-	meat = res[0]['dish']['dishName']
-	vegan = res[1]['dish']['dishName']
-	return meat, vegan
+def get_days_ago(days_ago):
+    date = datetime.datetime.now() - datetime.timedelta(days=days_ago)
+    return date.strftime('%Y-%m-%d'), date.strftime('%A')
+
+
+def getFood(start_date, end_date=""):
+    res = json.loads(urllib2.urlopen(
+        'http://carbonateapiprod.azurewebsites.net/api/v1/mealprovidingunits/3d519481-1667-4cad-d2a3-08d558129279/dishoccurrences?startDate='
+        + start_date
+        + '&endDate='
+        + end_date
+    ).read())
+    meat = res[0]['displayNames'][0]['dishDisplayName']
+    vegan = res[1]['displayNames'][0]['dishDisplayName']
+    return meat, vegan
+
 
 def get_today():
-	return get_days_ago(0)
+    return get_days_ago(0)
 
 try:
-	days_ago = int(sys.argv[1] if len(sys.argv) > 1 else 0)
-	date, day = get_days_ago(days_ago)
-	meat, vegan = getFood()
+    days_ago = int(sys.argv[1] if len(sys.argv) > 1 else 0)
+    date, day = get_days_ago(days_ago)
+    meat, vegan = getFood(date)
 
 except ValueError:
-	print 'invalid number of days'
+    print 'invalid number of days'
 except Exception:
-	print 'shit fucked up'
+    print 'shit fucked up'
